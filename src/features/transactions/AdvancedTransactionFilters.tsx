@@ -67,7 +67,7 @@ export function AdvancedTransactionFilters({
                 })
               }
               inputProps={{ min: 0, step: 0.01 }}
-              sx={{ minWidth: 160 }}
+              sx={{ minWidth: { xs: '100%', md: 160 } }}
             />
             <TextField
               label="Max amount"
@@ -80,7 +80,7 @@ export function AdvancedTransactionFilters({
                 })
               }
               inputProps={{ min: 0, step: 0.01 }}
-              sx={{ minWidth: 160 }}
+              sx={{ minWidth: { xs: '100%', md: 160 } }}
             />
             <TextField
               select
@@ -92,7 +92,7 @@ export function AdvancedTransactionFilters({
                   field: event.target.value as TransactionSortOptions['field'],
                 })
               }
-              sx={{ minWidth: 190 }}
+              sx={{ minWidth: { xs: '100%', md: 190 } }}
             >
               {sortFields.map((field) => (
                 <MenuItem key={field.value} value={field.value}>
@@ -110,7 +110,7 @@ export function AdvancedTransactionFilters({
                   direction: event.target.value as TransactionSortOptions['direction'],
                 })
               }
-              sx={{ minWidth: 150 }}
+              sx={{ minWidth: { xs: '100%', md: 150 } }}
             >
               <MenuItem value="desc">Newest / high first</MenuItem>
               <MenuItem value="asc">Oldest / low first</MenuItem>

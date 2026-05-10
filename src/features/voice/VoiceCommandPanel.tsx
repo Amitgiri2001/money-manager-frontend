@@ -4,6 +4,7 @@ import StopIcon from '@mui/icons-material/Stop';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
+import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
@@ -39,6 +40,7 @@ export function VoiceCommandPanel({
               variant="contained"
               disabled={!supported || listening || loading}
               onClick={onStartListening}
+              sx={{ width: { xs: '100%', sm: 'auto' } }}
             >
               Start
             </Button>
@@ -47,16 +49,18 @@ export function VoiceCommandPanel({
               variant="outlined"
               disabled={!listening}
               onClick={onStopListening}
+              sx={{ width: { xs: '100%', sm: 'auto' } }}
             >
               Stop
             </Button>
             <Button
-              startIcon={<GraphicEqIcon />}
+              startIcon={loading ? <CircularProgress size={18} /> : <GraphicEqIcon />}
               variant="text"
               disabled={loading || listening || !transcript.trim()}
               onClick={onParse}
+              sx={{ width: { xs: '100%', sm: 'auto' } }}
             >
-              Parse
+              {loading ? 'Parsing' : 'Parse'}
             </Button>
             <Typography color={listening ? 'primary.main' : 'text.secondary'} variant="body2">
               {supported

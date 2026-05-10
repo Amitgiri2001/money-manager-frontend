@@ -16,7 +16,7 @@ export function PageHeader({ title, action }: PageHeaderProps) {
       spacing={2}
       sx={{ mb: 3 }}
     >
-      <Typography variant="h4" component="h1">
+      <Typography variant="h4" component="h1" sx={{ fontSize: { xs: '1.75rem', sm: '2.125rem' } }}>
         {title}
       </Typography>
       {action}

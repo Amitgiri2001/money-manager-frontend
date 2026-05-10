@@ -76,7 +76,7 @@ export function MainTransactionFilters({
         onChange={(event) => onKeywordChange(event.target.value)}
         sx={{ flexGrow: 1, minWidth: { xs: '100%', lg: 220 } }}
       />
-      <Button variant="outlined" onClick={onReset} sx={{ px: 3 }}>
+      <Button variant="outlined" onClick={onReset} sx={{ px: 3, width: { xs: '100%', lg: 'auto' } }}>
         Clear
       </Button>
     </Stack>

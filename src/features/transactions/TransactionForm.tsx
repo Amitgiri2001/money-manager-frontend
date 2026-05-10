@@ -7,6 +7,8 @@ import DialogTitle from '@mui/material/DialogTitle';
 import MenuItem from '@mui/material/MenuItem';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 import { Controller, useForm } from 'react-hook-form';
 import { fromDateTimeLocalValue, toDateTimeLocalValue } from '../../utils/date';
 import { transactionCategories, transactionTypes } from '../../dtos/enums';
@@ -20,6 +22,8 @@ type TransactionFormProps = {
 };
 
 export function TransactionForm({ open, loading, onClose, onSubmit }: TransactionFormProps) {
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const {
     control,
     handleSubmit,
@@ -45,7 +49,7 @@ export function TransactionForm({ open, loading, onClose, onSubmit }: Transactio
   });
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm" fullScreen={fullScreen}>
       <DialogTitle>New Transaction</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ pt: 1 }}>
@@ -125,9 +129,9 @@ export function TransactionForm({ open, loading, onClose, onSubmit }: Transactio
           />
         </Stack>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button variant="contained" disabled={loading} onClick={submit}>
+      <DialogActions sx={{ px: 3, pb: 2, flexDirection: { xs: 'column-reverse', sm: 'row' }, gap: 1 }}>
+        <Button onClick={onClose} sx={{ width: { xs: '100%', sm: 'auto' } }}>Cancel</Button>
+        <Button variant="contained" disabled={loading} onClick={submit} sx={{ width: { xs: '100%', sm: 'auto' } }}>
           Save
         </Button>
       </DialogActions>

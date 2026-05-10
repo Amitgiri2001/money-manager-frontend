@@ -3,6 +3,7 @@ import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Grid from '@mui/material/Grid';
+import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
@@ -48,7 +49,7 @@ export function DashboardPage() {
       <PageHeader
         title="Dashboard"
         action={
-          <Stack direction="row" spacing={1}>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
             <TextField
               label="Month"
               type="month"
@@ -56,8 +57,15 @@ export function DashboardPage() {
               value={month}
               onChange={(event) => setMonth(event.target.value)}
               InputLabelProps={{ shrink: true }}
+              sx={{ minWidth: { xs: 0, sm: 180 }, flexGrow: { xs: 1, sm: 0 } }}
             />
-            <Button startIcon={<RefreshIcon />} variant="outlined" disabled={loading} onClick={loadAnalytics}>
+            <Button
+              startIcon={<RefreshIcon />}
+              variant="outlined"
+              disabled={loading}
+              onClick={loadAnalytics}
+              sx={{ width: { xs: '100%', sm: 'auto' } }}
+            >
               Refresh
             </Button>
           </Stack>
@@ -74,9 +82,13 @@ export function DashboardPage() {
                     {card.label}
                   </Typography>
                   <Typography variant="h5" sx={{ mt: 1 }}>
-                    {card.currency
-                      ? formatCurrency(Number(analytics?.[card.key] ?? 0))
-                      : Number(analytics?.[card.key] ?? 0)}
+                    {loading && !analytics ? (
+                      <Skeleton width="70%" />
+                    ) : card.currency ? (
+                      formatCurrency(Number(analytics?.[card.key] ?? 0))
+                    ) : (
+                      Number(analytics?.[card.key] ?? 0)
+                    )}
                   </Typography>
                 </CardContent>
               </Card>

@@ -11,6 +11,8 @@ import MenuItem from '@mui/material/MenuItem';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 import { useEffect, useMemo, useState } from 'react';
 import { transactionCategories, transactionTypes } from '../../dtos/enums';
 import type { ParsedTxnDto } from '../../dtos/voice.dto';
@@ -31,6 +33,8 @@ export function ParsedTxnConfirmationDialog({
   onCancel,
   onClose,
 }: ParsedTxnConfirmationDialogProps) {
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const [draft, setDraft] = useState<ParsedTxnDto | null>(parsedTxn);
 
   useEffect(() => {
@@ -71,7 +75,7 @@ export function ParsedTxnConfirmationDialog({
   }
 
   return (
-    <Dialog open={Boolean(parsedTxn)} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog open={Boolean(parsedTxn)} onClose={onClose} fullWidth maxWidth="sm" fullScreen={fullScreen}>
       <DialogTitle>Confirm Transaction</DialogTitle>
       <DialogContent>
         {draft && (
@@ -160,8 +164,13 @@ export function ParsedTxnConfirmationDialog({
           </Stack>
         )}
       </DialogContent>
-      <DialogActions>
-        <Button startIcon={<CloseIcon />} disabled={loading} onClick={onCancel}>
+      <DialogActions sx={{ px: 3, pb: 2, flexDirection: { xs: 'column-reverse', sm: 'row' }, gap: 1 }}>
+        <Button
+          startIcon={<CloseIcon />}
+          disabled={loading}
+          onClick={onCancel}
+          sx={{ width: { xs: '100%', sm: 'auto' } }}
+        >
           Cancel
         </Button>
         <Button
@@ -169,6 +178,7 @@ export function ParsedTxnConfirmationDialog({
           variant="contained"
           disabled={loading || !canConfirm || !draft}
           onClick={() => draft && onConfirm(draft)}
+          sx={{ width: { xs: '100%', sm: 'auto' } }}
         >
           Confirm
         </Button>

@@ -91,6 +91,7 @@ export function TransactionsPage() {
         />
         <TransactionsTable
           page={page}
+          loading={loading && !page}
           pageIndex={pageIndex}
           pageSize={pageSize}
           onPageChange={setPageIndex}
