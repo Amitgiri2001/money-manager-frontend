@@ -1,4 +1,5 @@
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -29,6 +30,7 @@ type TransactionsTableProps = {
   pageSize: number;
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;
+  onEdit: (transaction: TxnResponseDto) => void;
   onDelete: (transactionId: number) => void;
 };
 
@@ -39,6 +41,7 @@ export function TransactionsTable({
   pageSize,
   onPageChange,
   onPageSizeChange,
+  onEdit,
   onDelete,
 }: TransactionsTableProps) {
   const theme = useTheme();
@@ -70,15 +73,27 @@ export function TransactionsTable({
                         {formatCurrency(transaction.amount)}
                       </Typography>
                     </Stack>
+                    {transaction.effectiveAmount !== transaction.amount && (
+                      <Typography variant="body2" color="text.secondary" align="right">
+                        Effective {formatCurrency(transaction.effectiveAmount)}
+                      </Typography>
+                    )}
                     <Stack direction="row" justifyContent="space-between" spacing={1} alignItems="center">
                       <Typography variant="body2" color="text.secondary">
                         {transaction.note || 'No note'}
                       </Typography>
-                      <Tooltip title="Delete transaction">
-                        <IconButton color="error" onClick={() => onDelete(transaction.id)}>
-                          <DeleteIcon />
-                        </IconButton>
-                      </Tooltip>
+                      <Stack direction="row" spacing={0.5}>
+                        <Tooltip title="Edit transaction">
+                          <IconButton color="primary" onClick={() => onEdit(transaction)}>
+                            <EditIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Delete transaction">
+                          <IconButton color="error" onClick={() => onDelete(transaction.id)}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </Stack>
                     </Stack>
                   </Stack>
                 </CardContent>
@@ -114,6 +129,7 @@ export function TransactionsTable({
               <TableCell>Type</TableCell>
               <TableCell>Category</TableCell>
               <TableCell align="right">Amount</TableCell>
+              <TableCell align="right">Effective</TableCell>
               <TableCell>Note</TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
@@ -126,8 +142,18 @@ export function TransactionsTable({
                 <TableCell>{transaction.type}</TableCell>
                 <TableCell>{transaction.category}</TableCell>
                 <TableCell align="right">{formatCurrency(transaction.amount)}</TableCell>
+                <TableCell align="right">
+                  {transaction.effectiveAmount !== transaction.amount
+                    ? formatCurrency(transaction.effectiveAmount)
+                    : '-'}
+                </TableCell>
                 <TableCell>{transaction.note || '-'}</TableCell>
                 <TableCell align="right">
+                  <Tooltip title="Edit transaction">
+                    <IconButton color="primary" onClick={() => onEdit(transaction)}>
+                      <EditIcon />
+                    </IconButton>
+                  </Tooltip>
                   <Tooltip title="Delete transaction">
                     <IconButton color="error" onClick={() => onDelete(transaction.id)}>
                       <DeleteIcon />
@@ -138,7 +164,7 @@ export function TransactionsTable({
             ))}
             {!loading && rows.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6}>
+                <TableCell colSpan={7}>
                   <Typography color="text.secondary" align="center" sx={{ py: 4 }}>
                     No transactions found.
                   </Typography>
@@ -169,6 +195,7 @@ function DesktopTransactionSkeleton() {
           <TableCell><Skeleton width={140} /></TableCell>
           <TableCell><Skeleton width={80} /></TableCell>
           <TableCell><Skeleton width={100} /></TableCell>
+          <TableCell align="right"><Skeleton width={90} sx={{ ml: 'auto' }} /></TableCell>
           <TableCell align="right"><Skeleton width={90} sx={{ ml: 'auto' }} /></TableCell>
           <TableCell><Skeleton width="70%" /></TableCell>
           <TableCell align="right"><Skeleton variant="circular" width={32} height={32} sx={{ ml: 'auto' }} /></TableCell>
