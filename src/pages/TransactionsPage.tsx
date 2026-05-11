@@ -1,60 +1,61 @@
 import AddIcon from '@mui/icons-material/Add';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useOutletContext } from 'react-router-dom';
 import { createTransaction, deleteTransaction, searchTransactions } from '../api/transactionsApi';
+import { queryKeys } from '../api/queryKeys';
+import { toApiError } from '../api/http';
 import { AppErrorAlert } from '../components/AppErrorAlert';
 import { PageHeader } from '../components/PageHeader';
-import type { SpringPage } from '../dtos/api';
-import type { TxnResponseDto } from '../dtos/txn.dto';
 import { TransactionFiltersBar } from '../features/transactions/TransactionFiltersBar';
 import { TransactionForm } from '../features/transactions/TransactionForm';
 import type { TransactionFormValues } from '../features/transactions/transactionSchema';
 import { TransactionsTable } from '../features/transactions/TransactionsTable';
 import { useTransactionFilters } from '../features/transactions/useTransactionFilters';
-import { useApiAction } from '../hooks/useApiAction';
 import type { AppOutletContext } from '../types/app';
 
 export function TransactionsPage() {
   const { userId } = useOutletContext<AppOutletContext>();
+  const queryClient = useQueryClient();
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
-  const [page, setPage] = useState<SpringPage<TxnResponseDto> | null>(null);
   const [formOpen, setFormOpen] = useState(false);
-  const { loading, error, run } = useApiAction();
   const transactionFilters = useTransactionFilters();
+  const pageRequest = useMemo(
+    () => transactionFilters.buildPageRequest(pageIndex, pageSize),
+    [pageIndex, pageSize, transactionFilters.sort],
+  );
 
-  async function loadTransactions() {
-    await run(async () => {
-      const data = await searchTransactions(
-        userId,
-        transactionFilters.apiFilters,
-        transactionFilters.buildPageRequest(pageIndex, pageSize),
-      );
-      setPage(data);
-    });
-  }
+  const {
+    data: page = null,
+    error,
+    isFetching,
+    isLoading,
+  } = useQuery({
+    queryKey: queryKeys.transactions.list(userId, transactionFilters.apiFilters, pageRequest),
+    queryFn: () => searchTransactions(userId, transactionFilters.apiFilters, pageRequest),
+    placeholderData: (previousData) => previousData,
+  });
 
-  useEffect(() => {
-    void loadTransactions();
-  }, [userId, transactionFilters.apiFilters, transactionFilters.sort, pageIndex, pageSize]);
-
-  async function handleCreate(values: TransactionFormValues) {
-    await run(async () => {
-      await createTransaction({ ...values, userId });
+  const createMutation = useMutation({
+    mutationFn: (values: TransactionFormValues) => createTransaction({ ...values, userId }),
+    onSuccess: async () => {
       setFormOpen(false);
       setPageIndex(0);
-      await loadTransactions();
-    });
-  }
+      await queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.analytics.all });
+    },
+  });
 
-  async function handleDelete(transactionId: number) {
-    await run(async () => {
-      await deleteTransaction(transactionId);
-      await loadTransactions();
-    });
-  }
+  const deleteMutation = useMutation({
+    mutationFn: deleteTransaction,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.analytics.all });
+    },
+  });
 
   return (
     <>
@@ -67,7 +68,9 @@ export function TransactionsPage() {
         }
       />
       <Stack spacing={2}>
-        <AppErrorAlert error={error} />
+        <AppErrorAlert
+          error={error ? toApiError(error) : createMutation.error ? toApiError(createMutation.error) : deleteMutation.error ? toApiError(deleteMutation.error) : null}
+        />
         <TransactionFiltersBar
           filters={transactionFilters.filters}
           keyword={transactionFilters.keywordInput}
@@ -91,7 +94,7 @@ export function TransactionsPage() {
         />
         <TransactionsTable
           page={page}
-          loading={loading && !page}
+          loading={isLoading && !page}
           pageIndex={pageIndex}
           pageSize={pageSize}
           onPageChange={setPageIndex}
@@ -99,14 +102,16 @@ export function TransactionsPage() {
             setPageSize(nextSize);
             setPageIndex(0);
           }}
-          onDelete={handleDelete}
+          onDelete={(transactionId) => deleteMutation.mutate(transactionId)}
         />
       </Stack>
       <TransactionForm
         open={formOpen}
-        loading={loading}
+        loading={createMutation.isPending || isFetching}
         onClose={() => setFormOpen(false)}
-        onSubmit={handleCreate}
+        onSubmit={async (values) => {
+          await createMutation.mutateAsync(values);
+        }}
       />
     </>
   );

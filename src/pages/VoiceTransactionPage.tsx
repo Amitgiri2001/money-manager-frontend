@@ -1,9 +1,11 @@
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 import Stack from '@mui/material/Stack';
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { confirmVoiceTransaction, parseVoiceCommand } from '../api/voiceApi';
+import { queryKeys } from '../api/queryKeys';
 import { AppErrorAlert } from '../components/AppErrorAlert';
 import { PageHeader } from '../components/PageHeader';
 import type { ParsedTxnDto } from '../dtos/voice.dto';
@@ -15,6 +17,7 @@ import type { AppOutletContext } from '../types/app';
 
 export function VoiceTransactionPage() {
   const { userId } = useOutletContext<AppOutletContext>();
+  const queryClient = useQueryClient();
   const [parsed, setParsed] = useState<ParsedTxnDto | null>(null);
   const [toastMessage, setToastMessage] = useState('');
   const [parseAfterListening, setParseAfterListening] = useState(false);
@@ -63,6 +66,10 @@ export function VoiceTransactionPage() {
         userId: editedTxn.userId,
       });
       setToastMessage(confirmed && result ? `Transaction #${result.id} saved.` : 'Transaction cancelled.');
+      if (confirmed && result) {
+        await queryClient.invalidateQueries({ queryKey: queryKeys.transactions.all });
+        await queryClient.invalidateQueries({ queryKey: queryKeys.analytics.all });
+      }
       setParsed(null);
       speech.reset();
     });

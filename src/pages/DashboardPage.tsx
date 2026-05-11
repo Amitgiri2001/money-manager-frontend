@@ -7,15 +7,17 @@ import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useOutletContext } from 'react-router-dom';
 import { getMonthlyAnalytics } from '../api/analyticsApi';
+import { queryKeys } from '../api/queryKeys';
 import { AppErrorAlert } from '../components/AppErrorAlert';
 import { PageHeader } from '../components/PageHeader';
 import type { MonthlyAnalyticsDto } from '../dtos/txn.dto';
-import { useApiAction } from '../hooks/useApiAction';
 import type { AppOutletContext } from '../types/app';
 import { formatCurrency, toMonthInputValue } from '../utils/date';
+import { toApiError } from '../api/http';
 
 const cards: Array<{ label: string; key: keyof MonthlyAnalyticsDto; currency?: boolean }> = [
   { label: 'Income', key: 'totalIncome', currency: true },
@@ -30,19 +32,16 @@ const cards: Array<{ label: string; key: keyof MonthlyAnalyticsDto; currency?: b
 export function DashboardPage() {
   const { userId } = useOutletContext<AppOutletContext>();
   const [month, setMonth] = useState(toMonthInputValue());
-  const [analytics, setAnalytics] = useState<MonthlyAnalyticsDto | null>(null);
-  const { loading, error, run } = useApiAction();
-
-  async function loadAnalytics() {
-    await run(async () => {
-      const data = await getMonthlyAnalytics(userId, month);
-      setAnalytics(data);
-    });
-  }
-
-  useEffect(() => {
-    void loadAnalytics();
-  }, [userId, month]);
+  const {
+    data: analytics = null,
+    error,
+    isFetching,
+    isLoading,
+    refetch,
+  } = useQuery<MonthlyAnalyticsDto>({
+    queryKey: queryKeys.analytics.monthly(userId, month),
+    queryFn: () => getMonthlyAnalytics(userId, month),
+  });
 
   return (
     <>
@@ -62,8 +61,8 @@ export function DashboardPage() {
             <Button
               startIcon={<RefreshIcon />}
               variant="outlined"
-              disabled={loading}
-              onClick={loadAnalytics}
+              disabled={isFetching}
+              onClick={() => refetch()}
               sx={{ width: { xs: '100%', sm: 'auto' } }}
             >
               Refresh
@@ -72,7 +71,7 @@ export function DashboardPage() {
         }
       />
       <Stack spacing={3}>
-        <AppErrorAlert error={error} />
+        <AppErrorAlert error={error ? toApiError(error) : null} />
         <Grid container spacing={2}>
           {cards.map((card) => (
             <Grid item xs={12} sm={6} md={4} key={card.key}>
@@ -82,7 +81,7 @@ export function DashboardPage() {
                     {card.label}
                   </Typography>
                   <Typography variant="h5" sx={{ mt: 1 }}>
-                    {loading && !analytics ? (
+                    {isLoading && !analytics ? (
                       <Skeleton width="70%" />
                     ) : card.currency ? (
                       formatCurrency(Number(analytics?.[card.key] ?? 0))
