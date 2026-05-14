@@ -8,6 +8,8 @@ export interface TxnRequestDto {
   note?: string;
   time: string;
   userId: number;
+  txnTypeId: number;
+  txnCategoryId: number;
 }
 
 export interface UpdateTxnDto {
@@ -17,6 +19,8 @@ export interface UpdateTxnDto {
   category?: TransactionCategory;
   note?: string;
   time?: string;
+  txnTypeId?: number;
+  txnCategoryId?: number;
 }
 
 export interface TxnResponseDto {
@@ -27,6 +31,8 @@ export interface TxnResponseDto {
   category: TransactionCategory;
   note: string | null;
   userId: number;
+  txnType?: { id: number; name: string };
+  txnCategory?: { id: number; name: string };
   time: string;
   createdAt: string;
   updatedAt: string;

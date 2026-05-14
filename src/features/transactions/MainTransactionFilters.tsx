@@ -2,12 +2,15 @@ import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
-import { transactionCategories, transactionTypes } from '../../dtos/enums';
+import Typography from '@mui/material/Typography';
 import type { TxnFilterDto } from '../../dtos/txn.dto';
+import type { TxnClassificationDto } from '../../dtos/txnClassification.dto';
 
 type MainTransactionFiltersProps = {
   filters: TxnFilterDto;
   keyword: string;
+  typeOptions: TxnClassificationDto[];
+  categoryOptions: TxnClassificationDto[];
   onFiltersChange: (filters: TxnFilterDto) => void;
   onKeywordChange: (keyword: string) => void;
   onReset: () => void;
@@ -16,6 +19,8 @@ type MainTransactionFiltersProps = {
 export function MainTransactionFilters({
   filters,
   keyword,
+  typeOptions,
+  categoryOptions,
   onFiltersChange,
   onKeywordChange,
   onReset,
@@ -32,9 +37,9 @@ export function MainTransactionFilters({
         sx={{ minWidth: { xs: '100%', lg: 150 } }}
       >
         <MenuItem value="">All</MenuItem>
-        {transactionTypes.map((type) => (
-          <MenuItem key={type} value={type}>
-            {type}
+        {typeOptions.map((type) => (
+          <MenuItem key={type.name} value={type.name}>
+            {type.name}
           </MenuItem>
         ))}
       </TextField>
@@ -48,9 +53,9 @@ export function MainTransactionFilters({
         sx={{ minWidth: { xs: '100%', lg: 180 } }}
       >
         <MenuItem value="">All</MenuItem>
-        {transactionCategories.map((category) => (
-          <MenuItem key={category} value={category}>
-            {category}
+        {categoryOptions.map((category) => (
+          <MenuItem key={category.name} value={category.name}>
+            {category.name}
           </MenuItem>
         ))}
       </TextField>
