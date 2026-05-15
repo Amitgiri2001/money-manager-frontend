@@ -1,13 +1,13 @@
-import Button from '@mui/material/Button';
-import MenuItem from '@mui/material/MenuItem';
-import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import Snackbar from '@mui/material/Snackbar';
-import Alert from '@mui/material/Alert';
-import { useState, useMemo } from 'react';
-import type { TxnFilterDto } from '../../dtos/txn.dto';
-import type { TxnClassificationDto } from '../../dtos/txnClassification.dto';
+import Button from "@mui/material/Button";
+import MenuItem from "@mui/material/MenuItem";
+import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
+import { useState, useMemo } from "react";
+import type { TxnFilterDto } from "../../dtos/txn.dto";
+import type { TxnClassificationDto } from "../../dtos/txnClassification.dto";
 
 type MainTransactionFiltersProps = {
   filters: TxnFilterDto;
@@ -31,25 +31,30 @@ export function MainTransactionFilters({
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   const filteredCategories = useMemo(() => {
-    if (!filters.txnTypeId) return categoryOptions.filter(cat => !cat.parentId);
-    return categoryOptions.filter(cat => !cat.parentId || cat.parentId === filters.txnTypeId);
+    if (!filters.txnTypeId)
+      return categoryOptions.filter((cat) => !cat.parentId);
+    return categoryOptions.filter(
+      (cat) => !cat.parentId || cat.parentId === filters.txnTypeId,
+    );
   }, [categoryOptions, filters.txnTypeId]);
 
   return (
-    <Stack direction={{ xs: 'column', lg: 'row' }} spacing={2}>
+    <Stack direction={{ xs: "column", lg: "row" }} spacing={2}>
       <TextField
         select
         label="Type"
-        value={filters.txnTypeId ?? ''}
+        value={filters.txnTypeId ?? ""}
         onChange={(event) => {
-          const newTypeId = event.target.value ? Number(event.target.value) : undefined;
+          const newTypeId = event.target.value
+            ? Number(event.target.value)
+            : undefined;
           onFiltersChange({
             ...filters,
             txnTypeId: newTypeId,
             txnCategoryId: undefined, // Clear category when type changes
           });
         }}
-        sx={{ minWidth: { xs: '100%', lg: 150 } }}
+        sx={{ minWidth: { xs: "100%", lg: 150 } }}
       >
         <MenuItem value="">All</MenuItem>
         {typeOptions.map((type) => (
@@ -61,7 +66,7 @@ export function MainTransactionFilters({
       <TextField
         select
         label="Category"
-        value={filters.txnCategoryId ?? ''}
+        value={filters.txnCategoryId ?? ""}
         SelectProps={{
           onOpen: () => {
             if (!filters.txnTypeId) {
@@ -72,10 +77,12 @@ export function MainTransactionFilters({
         onChange={(event) =>
           onFiltersChange({
             ...filters,
-            txnCategoryId: event.target.value ? Number(event.target.value) : undefined,
+            txnCategoryId: event.target.value
+              ? Number(event.target.value)
+              : undefined,
           })
         }
-        sx={{ minWidth: { xs: '100%', lg: 180 } }}
+        sx={{ minWidth: { xs: "100%", lg: 180 } }}
       >
         <MenuItem value="">All</MenuItem>
         {filteredCategories.map((category) => (
@@ -87,26 +94,34 @@ export function MainTransactionFilters({
       <TextField
         label="Start date"
         type="date"
-        value={filters.startDate ?? ''}
-        onChange={(event) => onFiltersChange({ ...filters, startDate: event.target.value })}
+        value={filters.startDate ?? ""}
+        onChange={(event) =>
+          onFiltersChange({ ...filters, startDate: event.target.value })
+        }
         InputLabelProps={{ shrink: true }}
-        sx={{ minWidth: { xs: '100%', lg: 160 } }}
+        sx={{ minWidth: { xs: "100%", lg: 160 } }}
       />
       <TextField
         label="End date"
         type="date"
-        value={filters.endDate ?? ''}
-        onChange={(event) => onFiltersChange({ ...filters, endDate: event.target.value })}
+        value={filters.endDate ?? ""}
+        onChange={(event) =>
+          onFiltersChange({ ...filters, endDate: event.target.value })
+        }
         InputLabelProps={{ shrink: true }}
-        sx={{ minWidth: { xs: '100%', lg: 160 } }}
+        sx={{ minWidth: { xs: "100%", lg: 160 } }}
       />
       <TextField
         label="Search note"
         value={keyword}
         onChange={(event) => onKeywordChange(event.target.value)}
-        sx={{ flexGrow: 1, minWidth: { xs: '100%', lg: 220 } }}
+        sx={{ flexGrow: 1, minWidth: { xs: "100%", lg: 220 } }}
       />
-      <Button variant="outlined" onClick={onReset} sx={{ px: 3, width: { xs: '100%', lg: 'auto' } }}>
+      <Button
+        variant="outlined"
+        onClick={onReset}
+        sx={{ px: 3, width: { xs: "100%", lg: "auto" } }}
+      >
         Clear
       </Button>
 
@@ -114,10 +129,14 @@ export function MainTransactionFilters({
         open={snackbarOpen}
         autoHideDuration={4000}
         onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert onClose={() => setSnackbarOpen(false)} severity="error" sx={{ width: '100%' }}>
-          Please select a transaction type first.
+        <Alert
+          onClose={() => setSnackbarOpen(false)}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
+          Please select a transaction type first then category.
         </Alert>
       </Snackbar>
     </Stack>
