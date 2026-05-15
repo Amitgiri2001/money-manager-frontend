@@ -15,12 +15,8 @@ import { useTheme } from "@mui/material/styles";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { fromDateTimeLocalValue, toDateTimeLocalValue } from "../../utils/date";
-import { transactionCategories, transactionTypes } from "../../dtos/enums";
 import type { TxnResponseDto } from "../../dtos/txn.dto";
-import type {
-  TxnClassificationDto,
-  TxnClassificationLevel,
-} from "../../dtos/txnClassification.dto";
+import type { TxnClassificationDto, TxnClassificationLevel } from "../../dtos/txnClassification.dto";
 import {
   transactionSchema,
   type TransactionFormValues,

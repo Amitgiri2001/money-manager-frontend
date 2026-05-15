@@ -18,7 +18,6 @@ import { queryKeys } from "../api/queryKeys";
 import { toApiError } from "../api/http";
 import { AppErrorAlert } from "../components/AppErrorAlert";
 import { PageHeader } from "../components/PageHeader";
-import { transactionCategories, transactionTypes } from "../dtos/enums";
 import type {
   TxnClassificationDto,
   TxnClassificationLevel,
@@ -254,10 +253,8 @@ function toCreatePayload(
   userId: number,
 ): TxnRequestDto {
   return {
-    type: values.type as any,
     amount: values.amount,
     effectiveAmount: values.effectiveAmount,
-    category: values.category as any,
     note: values.note,
     time: values.time,
     userId,
@@ -268,10 +265,8 @@ function toCreatePayload(
 
 function toUpdatePayload(values: TransactionFormValues): UpdateTxnDto {
   return {
-    type: values.type as any,
     amount: values.amount,
     effectiveAmount: values.effectiveAmount,
-    category: values.category as any,
     note: values.note,
     time: values.time,
     txnTypeId: values.txnTypeId,
