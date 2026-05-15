@@ -6,6 +6,7 @@ export interface TxnClassificationDto {
   name: string;
   description: string;
   createdBy: number | null;
+  parentId?: number | null;
   createAt: string;
   updatedAt: string;
 }
@@ -15,4 +16,5 @@ export interface TxnClassificationRequestDto {
   name: string;
   description: string;
   createdBy: number;
+  parentId?: number | null;
 }

@@ -7,6 +7,8 @@ import DialogTitle from "@mui/material/DialogTitle";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Divider from "@mui/material/Divider";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 import Stack from "@mui/material/Stack";
 import Switch from "@mui/material/Switch";
 import TextField from "@mui/material/TextField";
@@ -32,6 +34,7 @@ type TransactionFormProps = {
     level: TxnClassificationLevel;
     name: string;
     description: string;
+    parentId?: number | null;
   }) => Promise<TxnClassificationDto>;
   onClose: () => void;
   onSubmit: (values: TransactionFormValues) => Promise<void>;
@@ -55,22 +58,28 @@ export function TransactionForm({
     useState<TxnClassificationLevel>("TYPE");
   const [newClassificationName, setNewClassificationName] = useState("");
   const [newClassificationDescription, setNewClassificationDescription] =
-    useState("");
-  const [isCreatingClassification, setIsCreatingClassification] =
-    useState(false);
-
-  const {
-    control,
-    handleSubmit,
-    reset,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useForm<TransactionFormValues>({
-    resolver: zodResolver(transactionSchema),
-    defaultValues: getDefaultValues(transaction, typeOptions, categoryOptions),
-  });
-  const effectiveAmountDifferent = watch("effectiveAmountDifferent");
+       useState("");
+     const [isCreatingClassification, setIsCreatingClassification] =
+       useState(false);
+     const [snackbarOpen, setSnackbarOpen] = useState(false);
+   
+     const {
+       control,
+       handleSubmit,
+       reset,
+       watch,
+       setValue,
+       formState: { errors },
+     } = useForm<TransactionFormValues>({
+       resolver: zodResolver(transactionSchema),
+       defaultValues: getDefaultValues(transaction, typeOptions, categoryOptions),
+     });
+     const effectiveAmountDifferent = watch("effectiveAmountDifferent");
+     const selectedTypeId = watch("txnTypeId");
+   
+     const filteredCategories = categoryOptions.filter(
+       (cat) => !cat.parentId || cat.parentId === selectedTypeId
+     );
 
   useEffect(() => {
     if (open) {
@@ -87,6 +96,7 @@ export function TransactionForm({
           level: newClassificationLevel,
           name: newClassificationName.trim(),
           description: newClassificationDescription.trim(),
+          parentId: newClassificationLevel === "CATEGORY" ? selectedTypeId : null,
         });
   
         // Select the newly created classification
@@ -227,6 +237,13 @@ export function TransactionForm({
                   error={!!errors.txnCategoryId}
                   helperText={errors.txnCategoryId?.message}
                   {...field}
+                  SelectProps={{
+                    onOpen: () => {
+                      if (!selectedTypeId) {
+                        setSnackbarOpen(true);
+                      }
+                    },
+                  }}
                   onChange={(e) => {
                     const val = e.target.value;
                     if (val === "ADD_NEW") {
@@ -238,7 +255,7 @@ export function TransactionForm({
                     field.onChange(numVal);
                   }}
                 >
-                  {categoryOptions.map((option) => (
+                  {filteredCategories.map((option) => (
                     <MenuItem key={option.id} value={option.id}>
                       {option.name}
                     </MenuItem>
@@ -303,10 +320,25 @@ export function TransactionForm({
             {transaction ? "Update" : "Save"}
           </Button>
         </DialogActions>
-      </Dialog>
+    </Dialog>
 
-      <Dialog
-        open={classificationDialogOpen}
+    <Snackbar
+      open={snackbarOpen}
+      autoHideDuration={4000}
+      onClose={() => setSnackbarOpen(false)}
+      anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+    >
+      <Alert
+        onClose={() => setSnackbarOpen(false)}
+        severity="error"
+        sx={{ width: "100%" }}
+      >
+        Please select a transaction type first.
+      </Alert>
+    </Snackbar>
+
+    <Dialog
+      open={classificationDialogOpen}
         onClose={() => setClassificationDialogOpen(false)}
         fullWidth
         maxWidth="xs"

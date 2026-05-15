@@ -8,6 +8,8 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
@@ -40,10 +42,16 @@ export function ParsedTxnConfirmationDialog({
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const [draft, setDraft] = useState<ParsedTxnDto | null>(parsedTxn);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   useEffect(() => {
     setDraft(parsedTxn);
   }, [parsedTxn]);
+
+  const filteredCategories = useMemo(() => {
+    if (!draft?.txnTypeId) return categoryOptions.filter((cat) => !cat.parentId);
+    return categoryOptions.filter((cat) => !cat.parentId || cat.parentId === draft.txnTypeId);
+  }, [categoryOptions, draft?.txnTypeId]);
 
   const missingFields = useMemo(() => {
     if (!draft) {
@@ -79,6 +87,7 @@ export function ParsedTxnConfirmationDialog({
   }
 
   return (
+    <>
     <Dialog open={Boolean(parsedTxn)} onClose={onClose} fullWidth maxWidth="sm" fullScreen={fullScreen}>
       <DialogTitle>Confirm Transaction</DialogTitle>
       <DialogContent>
@@ -101,7 +110,12 @@ export function ParsedTxnConfirmationDialog({
                 required
                 label="Type"
                 value={draft.txnTypeId ?? ''}
-                onChange={(event) => updateDraft({ txnTypeId: event.target.value ? Number(event.target.value) : null })}
+                onChange={(event) =>
+                  updateDraft({
+                    txnTypeId: event.target.value ? Number(event.target.value) : null,
+                    txnCategoryId: null, // Clear category when type changes
+                  })
+                }
                 fullWidth
               >
                 {typeOptions.map((option) => (
@@ -129,12 +143,19 @@ export function ParsedTxnConfirmationDialog({
                 required
                 label="Category"
                 value={draft.txnCategoryId ?? ''}
+                SelectProps={{
+                  onOpen: () => {
+                    if (!draft.txnTypeId) {
+                      setSnackbarOpen(true);
+                    }
+                  },
+                }}
                 onChange={(event) =>
                   updateDraft({ txnCategoryId: event.target.value ? Number(event.target.value) : null })
                 }
                 fullWidth
               >
-                {categoryOptions.map((option) => (
+                {filteredCategories.map((option) => (
                   <MenuItem key={option.id} value={option.id}>
                     {option.name}
                   </MenuItem>
@@ -188,6 +209,18 @@ export function ParsedTxnConfirmationDialog({
         </Button>
       </DialogActions>
     </Dialog>
+
+    <Snackbar
+      open={snackbarOpen}
+      autoHideDuration={4000}
+      onClose={() => setSnackbarOpen(false)}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+    >
+      <Alert onClose={() => setSnackbarOpen(false)} severity="error" sx={{ width: '100%' }}>
+        Please select a transaction type first.
+      </Alert>
+    </Snackbar>
+    </>
   );
 }
 

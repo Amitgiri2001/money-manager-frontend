@@ -126,16 +126,19 @@ export function TransactionsPage() {
       level,
       name,
       description,
+      parentId,
     }: {
       level: TxnClassificationLevel;
       name: string;
       description: string;
+      parentId?: number | null;
     }) =>
       createTxnClassification({
         level: level,
         name,
         description,
         createdBy: userId,
+        parentId,
       }),
     onSuccess: async (classification) => {
       await queryClient.invalidateQueries({

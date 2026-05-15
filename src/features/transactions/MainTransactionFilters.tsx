@@ -3,6 +3,9 @@ import MenuItem from '@mui/material/MenuItem';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+import { useState, useMemo } from 'react';
 import type { TxnFilterDto } from '../../dtos/txn.dto';
 import type { TxnClassificationDto } from '../../dtos/txnClassification.dto';
 
@@ -25,18 +28,27 @@ export function MainTransactionFilters({
   onKeywordChange,
   onReset,
 }: MainTransactionFiltersProps) {
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  const filteredCategories = useMemo(() => {
+    if (!filters.txnTypeId) return categoryOptions.filter(cat => !cat.parentId);
+    return categoryOptions.filter(cat => !cat.parentId || cat.parentId === filters.txnTypeId);
+  }, [categoryOptions, filters.txnTypeId]);
+
   return (
     <Stack direction={{ xs: 'column', lg: 'row' }} spacing={2}>
       <TextField
         select
         label="Type"
         value={filters.txnTypeId ?? ''}
-        onChange={(event) =>
+        onChange={(event) => {
+          const newTypeId = event.target.value ? Number(event.target.value) : undefined;
           onFiltersChange({
             ...filters,
-            txnTypeId: event.target.value ? Number(event.target.value) : undefined,
-          })
-        }
+            txnTypeId: newTypeId,
+            txnCategoryId: undefined, // Clear category when type changes
+          });
+        }}
         sx={{ minWidth: { xs: '100%', lg: 150 } }}
       >
         <MenuItem value="">All</MenuItem>
@@ -50,6 +62,13 @@ export function MainTransactionFilters({
         select
         label="Category"
         value={filters.txnCategoryId ?? ''}
+        SelectProps={{
+          onOpen: () => {
+            if (!filters.txnTypeId) {
+              setSnackbarOpen(true);
+            }
+          },
+        }}
         onChange={(event) =>
           onFiltersChange({
             ...filters,
@@ -59,7 +78,7 @@ export function MainTransactionFilters({
         sx={{ minWidth: { xs: '100%', lg: 180 } }}
       >
         <MenuItem value="">All</MenuItem>
-        {categoryOptions.map((category) => (
+        {filteredCategories.map((category) => (
           <MenuItem key={category.id} value={category.id}>
             {category.name}
           </MenuItem>
@@ -90,6 +109,17 @@ export function MainTransactionFilters({
       <Button variant="outlined" onClick={onReset} sx={{ px: 3, width: { xs: '100%', lg: 'auto' } }}>
         Clear
       </Button>
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={4000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbarOpen(false)} severity="error" sx={{ width: '100%' }}>
+          Please select a transaction type first.
+        </Alert>
+      </Snackbar>
     </Stack>
   );
 }
