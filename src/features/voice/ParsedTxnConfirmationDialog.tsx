@@ -14,13 +14,15 @@ import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import { useEffect, useMemo, useState } from 'react';
-import { transactionCategories, transactionTypes } from '../../dtos/enums';
+import type { TxnClassificationDto } from '../../dtos/txnClassification.dto';
 import type { ParsedTxnDto } from '../../dtos/voice.dto';
 import { formatCurrency, fromDateTimeLocalValue } from '../../utils/date';
 
 type ParsedTxnConfirmationDialogProps = {
   parsedTxn: ParsedTxnDto | null;
   loading: boolean;
+  typeOptions: TxnClassificationDto[];
+  categoryOptions: TxnClassificationDto[];
   onConfirm: (parsedTxn: ParsedTxnDto) => void;
   onCancel: () => void;
   onClose: () => void;
@@ -29,6 +31,8 @@ type ParsedTxnConfirmationDialogProps = {
 export function ParsedTxnConfirmationDialog({
   parsedTxn,
   loading,
+  typeOptions,
+  categoryOptions,
   onConfirm,
   onCancel,
   onClose,
@@ -47,9 +51,9 @@ export function ParsedTxnConfirmationDialog({
     }
 
     return [
-      !draft.type ? 'type' : '',
+      !draft.txnTypeId ? 'type' : '',
       !draft.amount || draft.amount <= 0 ? 'amount' : '',
-      !draft.category ? 'category' : '',
+      !draft.txnCategoryId ? 'category' : '',
       !draft.time ? 'time' : '',
     ].filter(Boolean);
   }, [draft]);
@@ -69,7 +73,7 @@ export function ParsedTxnConfirmationDialog({
 
       return {
         ...next,
-        valid: Boolean(next.type && next.amount && next.amount > 0 && next.category && next.time),
+        valid: Boolean(next.txnTypeId && next.amount && next.amount > 0 && next.txnCategoryId && next.time),
       };
     });
   }
@@ -96,13 +100,13 @@ export function ParsedTxnConfirmationDialog({
                 select
                 required
                 label="Type"
-                value={draft.type ?? ''}
-                onChange={(event) => updateDraft({ type: event.target.value as ParsedTxnDto['type'] })}
+                value={draft.txnTypeId ?? ''}
+                onChange={(event) => updateDraft({ txnTypeId: event.target.value ? Number(event.target.value) : null })}
                 fullWidth
               >
-                {transactionTypes.map((type) => (
-                  <MenuItem key={type} value={type}>
-                    {type}
+                {typeOptions.map((option) => (
+                  <MenuItem key={option.id} value={option.id}>
+                    {option.name}
                   </MenuItem>
                 ))}
               </TextField>
@@ -124,15 +128,15 @@ export function ParsedTxnConfirmationDialog({
                 select
                 required
                 label="Category"
-                value={draft.category ?? ''}
+                value={draft.txnCategoryId ?? ''}
                 onChange={(event) =>
-                  updateDraft({ category: event.target.value as ParsedTxnDto['category'] })
+                  updateDraft({ txnCategoryId: event.target.value ? Number(event.target.value) : null })
                 }
                 fullWidth
               >
-                {transactionCategories.map((category) => (
-                  <MenuItem key={category} value={category}>
-                    {category}
+                {categoryOptions.map((option) => (
+                  <MenuItem key={option.id} value={option.id}>
+                    {option.name}
                   </MenuItem>
                 ))}
               </TextField>

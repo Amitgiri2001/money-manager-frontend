@@ -3,7 +3,7 @@ import type { PageRequestDto } from '../../dtos/api';
 import type { TxnFilterDto } from '../../dtos/txn.dto';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 
-export type TransactionSortField = 'time' | 'amount' | 'category' | 'type';
+export type TransactionSortField = 'time' | 'amount' | 'txnCategory.name' | 'txnType.name';
 
 export type TransactionSortOptions = {
   field: TransactionSortField;

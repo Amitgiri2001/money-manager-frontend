@@ -65,8 +65,8 @@ export function TransactionsTable({
                           {formatDateTime(transaction.time)}
                         </Typography>
                         <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                          <Chip size="small" label={transaction.type} color="primary" variant="outlined" />
-                          <Chip size="small" label={transaction.category} />
+                          <Chip size="small" label={transaction.txnType?.name || 'Unknown'} color="primary" variant="outlined" />
+                          <Chip size="small" label={transaction.txnCategory?.name || 'Unknown'} />
                         </Stack>
                       </Box>
                       <Typography variant="h6" align="right">
@@ -139,8 +139,8 @@ export function TransactionsTable({
             {rows.map((transaction) => (
               <TableRow key={transaction.id} hover>
                 <TableCell>{formatDateTime(transaction.time)}</TableCell>
-                <TableCell>{transaction.type}</TableCell>
-                <TableCell>{transaction.category}</TableCell>
+                <TableCell>{transaction.txnType?.name || 'Unknown'}</TableCell>
+                <TableCell>{transaction.txnCategory?.name || 'Unknown'}</TableCell>
                 <TableCell align="right">{formatCurrency(transaction.amount)}</TableCell>
                 <TableCell align="right">
                   {transaction.effectiveAmount !== transaction.amount

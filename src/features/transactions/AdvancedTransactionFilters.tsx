@@ -20,8 +20,8 @@ type AdvancedTransactionFiltersProps = {
 const sortFields: Array<{ label: string; value: TransactionSortOptions['field'] }> = [
   { label: 'Transaction time', value: 'time' },
   { label: 'Amount', value: 'amount' },
-  { label: 'Category', value: 'category' },
-  { label: 'Type', value: 'type' },
+  { label: 'Category', value: 'txnCategory.name' },
+  { label: 'Type', value: 'txnType.name' },
 ];
 
 export function AdvancedTransactionFilters({

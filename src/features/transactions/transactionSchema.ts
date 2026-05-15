@@ -2,12 +2,10 @@ import { z } from "zod";
 
 export const transactionSchema = z
   .object({
-    type: z.string().trim().min(1, "Transaction type is required"),
     txnTypeId: z.number().min(1, "Transaction type is required"),
     amount: z.coerce.number().min(0.0, "Amount must be at least 0.00"),
     effectiveAmountDifferent: z.boolean(),
     effectiveAmount: z.coerce.number().optional(),
-    category: z.string().trim().min(1, "Category is required"),
     txnCategoryId: z.number().min(1, "Category is required"),
     note: z.string().max(100, "Note must be 100 characters or less").optional(),
     time: z.string().min(1, "Transaction time is required"),

@@ -1,10 +1,6 @@
-import type { TransactionCategory, TransactionType } from './enums';
-
 export interface TxnRequestDto {
-  type: TransactionType;
   amount: number;
   effectiveAmount?: number;
-  category: TransactionCategory;
   note?: string;
   time: string;
   userId: number;
@@ -13,10 +9,8 @@ export interface TxnRequestDto {
 }
 
 export interface UpdateTxnDto {
-  type?: TransactionType;
   amount?: number;
   effectiveAmount?: number;
-  category?: TransactionCategory;
   note?: string;
   time?: string;
   txnTypeId?: number;
@@ -25,10 +19,8 @@ export interface UpdateTxnDto {
 
 export interface TxnResponseDto {
   id: number;
-  type: TransactionType;
   amount: number;
   effectiveAmount: number;
-  category: TransactionCategory;
   note: string | null;
   userId: number;
   txnType?: { id: number; name: string };
@@ -39,8 +31,8 @@ export interface TxnResponseDto {
 }
 
 export interface TxnFilterDto {
-  type?: TransactionType;
-  category?: TransactionCategory;
+  txnTypeId?: number;
+  txnCategoryId?: number;
   minAmount?: number;
   maxAmount?: number;
   startDate?: string;

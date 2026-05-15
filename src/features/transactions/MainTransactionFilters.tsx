@@ -30,15 +30,18 @@ export function MainTransactionFilters({
       <TextField
         select
         label="Type"
-        value={filters.type ?? ''}
+        value={filters.txnTypeId ?? ''}
         onChange={(event) =>
-          onFiltersChange({ ...filters, type: event.target.value as TxnFilterDto['type'] })
+          onFiltersChange({
+            ...filters,
+            txnTypeId: event.target.value ? Number(event.target.value) : undefined,
+          })
         }
         sx={{ minWidth: { xs: '100%', lg: 150 } }}
       >
         <MenuItem value="">All</MenuItem>
         {typeOptions.map((type) => (
-          <MenuItem key={type.name} value={type.name}>
+          <MenuItem key={type.id} value={type.id}>
             {type.name}
           </MenuItem>
         ))}
@@ -46,15 +49,18 @@ export function MainTransactionFilters({
       <TextField
         select
         label="Category"
-        value={filters.category ?? ''}
+        value={filters.txnCategoryId ?? ''}
         onChange={(event) =>
-          onFiltersChange({ ...filters, category: event.target.value as TxnFilterDto['category'] })
+          onFiltersChange({
+            ...filters,
+            txnCategoryId: event.target.value ? Number(event.target.value) : undefined,
+          })
         }
         sx={{ minWidth: { xs: '100%', lg: 180 } }}
       >
         <MenuItem value="">All</MenuItem>
         {categoryOptions.map((category) => (
-          <MenuItem key={category.name} value={category.name}>
+          <MenuItem key={category.id} value={category.id}>
             {category.name}
           </MenuItem>
         ))}

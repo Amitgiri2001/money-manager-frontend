@@ -1,10 +1,11 @@
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 import Stack from '@mui/material/Stack';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { confirmVoiceTransaction, parseVoiceCommand } from '../api/voiceApi';
+import { fetchTxnClassifications } from '../api/txnClassificationsApi';
 import { queryKeys } from '../api/queryKeys';
 import { AppErrorAlert } from '../components/AppErrorAlert';
 import { PageHeader } from '../components/PageHeader';
@@ -23,6 +24,16 @@ export function VoiceTransactionPage() {
   const [parseAfterListening, setParseAfterListening] = useState(false);
   const { loading, error, run } = useApiAction();
   const speech = useSpeechToText();
+
+  const { data: typeOptions = [] } = useQuery({
+    queryKey: queryKeys.classifications.list(userId, 'TYPE'),
+    queryFn: () => fetchTxnClassifications(userId, 'TYPE'),
+  });
+
+  const { data: categoryOptions = [] } = useQuery({
+    queryKey: queryKeys.classifications.list(userId, 'CATEGORY'),
+    queryFn: () => fetchTxnClassifications(userId, 'CATEGORY'),
+  });
 
   async function handleParse(command = speech.transcript) {
     if (!command.trim()) {
@@ -58,9 +69,9 @@ export function VoiceTransactionPage() {
       const result = await confirmVoiceTransaction({
         confirmationId: editedTxn.confirmationId,
         confirmed,
-        type: editedTxn.type,
+        txnTypeId: editedTxn.txnTypeId,
         amount: editedTxn.amount,
-        category: editedTxn.category,
+        txnCategoryId: editedTxn.txnCategoryId,
         note: editedTxn.note,
         time: editedTxn.time,
         userId: editedTxn.userId,
@@ -97,6 +108,8 @@ export function VoiceTransactionPage() {
       <ParsedTxnConfirmationDialog
         parsedTxn={parsed}
         loading={loading}
+        typeOptions={typeOptions}
+        categoryOptions={categoryOptions}
         onConfirm={(editedTxn) => handleConfirm(true, editedTxn)}
         onCancel={() => handleConfirm(false)}
         onClose={() => setParsed(null)}

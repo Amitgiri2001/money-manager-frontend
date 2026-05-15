@@ -88,21 +88,19 @@ export function TransactionForm({
     setIsCreatingClassification(true);
     try {
       const newClassification = await onCreateClassification({
-        level: newClassificationLevel,
-        name: newClassificationName.trim(),
-        description: newClassificationDescription.trim(),
-      });
-
-      // Select the newly created classification
-      if (newClassificationLevel === "TYPE") {
-        setValue("txnTypeId", newClassification.id);
-        setValue("type", newClassification.name);
-      } else {
-        setValue("txnCategoryId", newClassification.id);
-        setValue("category", newClassification.name);
-      }
-
-      setClassificationDialogOpen(false);
+          level: newClassificationLevel,
+          name: newClassificationName.trim(),
+          description: newClassificationDescription.trim(),
+        });
+  
+        // Select the newly created classification
+        if (newClassificationLevel === "TYPE") {
+          setValue("txnTypeId", newClassification.id);
+        } else {
+          setValue("txnCategoryId", newClassification.id);
+        }
+  
+        setClassificationDialogOpen(false);
       setNewClassificationName("");
       setNewClassificationDescription("");
     } catch (error) {
@@ -158,11 +156,6 @@ export function TransactionForm({
                     }
                     const numVal = Number(val);
                     field.onChange(numVal);
-                    // Also update the 'type' string field for backward compatibility
-                    const selected = typeOptions.find((o) => o.id === numVal);
-                    if (selected) {
-                      setValue("type", selected.name);
-                    }
                   }}
                 >
                   {typeOptions.map((option) => (
@@ -247,13 +240,6 @@ export function TransactionForm({
                     }
                     const numVal = Number(val);
                     field.onChange(numVal);
-                    // Also update the 'category' string field for backward compatibility
-                    const selected = categoryOptions.find(
-                      (o) => o.id === numVal,
-                    );
-                    if (selected) {
-                      setValue("category", selected.name);
-                    }
                   }}
                 >
                   {categoryOptions.map((option) => (
@@ -379,25 +365,18 @@ function getDefaultValues(
     transaction && effectiveAmount !== amount,
   );
 
-  const type = transaction?.type ?? "EXPENSE";
-  const category = transaction?.category ?? "FOOD";
-
   const txnTypeId =
     transaction?.txnType?.id ??
-    typeOptions.find((o) => o.name === type)?.id ??
-    0;
+    (typeOptions.length > 0 ? typeOptions[0].id : 0);
   const txnCategoryId =
     transaction?.txnCategory?.id ??
-    categoryOptions.find((o) => o.name === category)?.id ??
-    0;
+    (categoryOptions.length > 0 ? categoryOptions[0].id : 0);
 
   return {
-    type,
     txnTypeId,
     amount,
     effectiveAmountDifferent,
     effectiveAmount,
-    category,
     txnCategoryId,
     note: transaction?.note ?? "",
     time: transaction?.time
