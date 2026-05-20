@@ -126,7 +126,18 @@ export function TransactionForm({
       effectiveAmount,
       time: fromDateTimeLocalValue(values.time),
     });
-    reset(getDefaultValues(null, typeOptions, categoryOptions));
+
+    if (transaction) {
+      // For updates, reset everything to defaults (usually modal closes anyway)
+      reset(getDefaultValues(null, typeOptions, categoryOptions));
+    } else {
+      // For new transactions, keep type, category, and time for reuse
+      // Clear amount and note as requested
+      setValue("amount", 0);
+      setValue("note", "");
+      setValue("effectiveAmount", 0);
+      setValue("effectiveAmountDifferent", false);
+    }
   });
 
   return (
@@ -395,9 +406,12 @@ function getDefaultValues(
 
   const txnTypeId =
     transaction?.txnType?.id ??
+    typeOptions.find((o) => o.name === "EXPENSE")?.id ??
     (typeOptions.length > 0 ? typeOptions[0].id : 0);
+
   const txnCategoryId =
     transaction?.txnCategory?.id ??
+    categoryOptions.find((o) => o.name === "FOOD")?.id ??
     (categoryOptions.length > 0 ? categoryOptions[0].id : 0);
 
   return {

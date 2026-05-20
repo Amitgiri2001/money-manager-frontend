@@ -1,6 +1,8 @@
 import AddIcon from "@mui/icons-material/Add";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useOutletContext } from "react-router-dom";
@@ -42,6 +44,7 @@ export function TransactionsPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] =
     useState<TxnResponseDto | null>(null);
+  const [successMessage, setSuccessMessage] = useState("");
   const transactionFilters = useTransactionFilters();
   const pageRequest = useMemo(
     () => transactionFilters.buildPageRequest(pageIndex, pageSize),
@@ -78,8 +81,8 @@ export function TransactionsPage() {
     mutationFn: (values: TransactionFormValues) =>
       createTransaction(toCreatePayload(values, userId)),
     onSuccess: async () => {
-      setFormOpen(false);
-      setEditingTransaction(null);
+      // Don't close form immediately to allow reuse for bulk entry
+      setSuccessMessage("Transaction saved successfully!");
       setPageIndex(0);
       await queryClient.invalidateQueries({
         queryKey: queryKeys.transactions.all,
@@ -247,6 +250,21 @@ export function TransactionsPage() {
           await createMutation.mutateAsync(values);
         }}
       />
+
+      <Snackbar
+        open={Boolean(successMessage)}
+        autoHideDuration={3000}
+        onClose={() => setSuccessMessage("")}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert
+          onClose={() => setSuccessMessage("")}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          {successMessage}
+        </Alert>
+      </Snackbar>
     </>
   );
 }
